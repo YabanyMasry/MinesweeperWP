@@ -1,91 +1,95 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
   standalone: true,
   imports: [],
   template: `
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container">
-        <a class="navbar-brand" href="#">
-          <img src="mine.png" alt="Mine" class="mine-icon">
-          Minesweeper
-        </a>
-        <div class="collapse navbar-collapse justify-content-end">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link btn btn-outline-light mx-1" href="#" (click)="openSignUpModal()">Sign Up</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link btn btn-outline-light mx-1" href="#" (click)="openLoginModal()">Login</a>
-            </li>
-          </ul>
-        </div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="#">
+      <img src="mine.png" alt="Mine" class="mine-icon">
+      Minesweeper
+    </a>
+    <div class="collapse navbar-collapse justify-content-end">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link btn btn-outline-light mx-1" href="#" (click)="openSignUpModal()">Sign Up</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link btn btn-outline-light mx-1" href="#" (click)="openLoginModal()">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link btn btn-outline-light mx-1" (click)="navigateToProfile()">Profile</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="modal" id="loginModal" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Login</h5>
+        <button type="button" class="close" (click)="closeLoginModal()">
+          &times;
+        </button>
       </div>
-    </nav>
-    <div class="modal" id="loginModal" style="display: none;">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Login</h5>
-            <button type="button" class="close" (click)="closeLoginModal()">
-              &times;
-            </button>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="username">Username/Email</label>
+            <input type="text" id="username" class="form-control" placeholder="Enter Username/Email">
           </div>
-          <div class="modal-body">
-            <form>
-              <div class="form-group">
-                <label for="username">Username/Email</label>
-                <input type="text" id="username" class="form-control" placeholder="Enter Username/Email">
-              </div>
-              <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" class="form-control" placeholder="Password">
-              </div>
-              <div class="forgot-password">
-                <a href="#">Forgot password?</a>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn" (click)="closeLoginModal()">Close</button>
-                <button type="submit" class="btn btn-primary">Log in</button>
-              </div>
-            </form>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" class="form-control" placeholder="Password">
           </div>
-        </div>
+          <div class="forgot-password">
+            <a href="#">Forgot password?</a>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn" (click)="closeLoginModal()">Close</button>
+            <button type="submit" class="btn btn-primary">Log in</button>
+          </div>
+        </form>
       </div>
     </div>
-    <div class="modal" id="signUpModal" style="display: none;">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Sign Up</h5>
-            <button type="button" class="close" (click)="closeSignUpModal()">
-              &times;
-            </button>
+  </div>
+</div>
+<div class="modal" id="signUpModal" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Sign Up</h5>
+        <button type="button" class="close" (click)="closeSignUpModal()">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="newUsername">Username</label>
+            <input type="text" id="newUsername" class="form-control" placeholder="Enter Username">
           </div>
-          <div class="modal-body">
-            <form>
-              <div class="form-group">
-                <label for="newUsername">Username</label>
-                <input type="text" id="newUsername" class="form-control" placeholder="Enter Username">
-              </div>
-              <div class="form-group">
-                <label for="newEmail">Email</label>
-                <input type="email" id="newEmail" class="form-control" placeholder="Enter Email">
-              </div>
-              <div class="form-group">
-                <label for="newPassword">Password</label>
-                <input type="password" id="newPassword" class="form-control" placeholder="Enter Password">
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn" (click)="closeSignUpModal()">Close</button>
-                <button type="submit" class="btn btn-primary">Sign Up</button>
-              </div>
-            </form>
+          <div class="form-group">
+            <label for="newEmail">Email</label>
+            <input type="email" id="newEmail" class="form-control" placeholder="Enter Email">
           </div>
-        </div>
+          <div class="form-group">
+            <label for="newPassword">Password</label>
+            <input type="password" id="newPassword" class="form-control" placeholder="Enter Password">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn" (click)="closeSignUpModal()">Close</button>
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
+</div>
   `,
   styles: [
     `
@@ -221,7 +225,9 @@ import { Component } from '@angular/core';
     `
   ]
 })
+
 export class HeaderComponent {
+  constructor(private router: Router) {}
   openLoginModal() {
     const modal = document.getElementById('loginModal');
     if (modal) {
@@ -248,5 +254,9 @@ export class HeaderComponent {
     if (modal) {
       modal.style.display = 'none';
     }
+  }
+
+  navigateToProfile() {
+    this.router.navigate(['/profile']);
   }
 }

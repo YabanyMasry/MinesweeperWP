@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { UserService } from '../user.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [],
+  imports: [FormsModule],
+  providers: [UserService],
   template: `
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
@@ -68,18 +71,18 @@ import { Router } from '@angular/router';
         </button>
       </div>
       <div class="modal-body">
-        <form>
+        <form (ngSubmit)="signUp()">
           <div class="form-group">
             <label for="newUsername">Username</label>
-            <input type="text" id="newUsername" class="form-control" placeholder="Enter Username">
+            <input type="text" id="newUsername" class="form-control" [(ngModel)]="newUser.username" name="username" placeholder="Enter Username">
           </div>
           <div class="form-group">
             <label for="newEmail">Email</label>
-            <input type="email" id="newEmail" class="form-control" placeholder="Enter Email">
+            <input type="email" id="newEmail" class="form-control" [(ngModel)]="newUser.email" name="email" placeholder="Enter Email">
           </div>
           <div class="form-group">
             <label for="newPassword">Password</label>
-            <input type="password" id="newPassword" class="form-control" placeholder="Enter Password">
+            <input type="password" id="newPassword" class="form-control" [(ngModel)]="newUser.password" name="password" placeholder="Enter Password">
           </div>
           <div class="modal-footer">
             <button type="button" class="btn" (click)="closeSignUpModal()">Close</button>
@@ -225,9 +228,15 @@ import { Router } from '@angular/router';
     `
   ]
 })
-
 export class HeaderComponent {
-  constructor(private router: Router) {}
+  newUser = {
+    username: '',
+    email: '',
+    password: ''
+  };
+
+  constructor(private userService: UserService, private router: Router) {}
+
   openLoginModal() {
     const modal = document.getElementById('loginModal');
     if (modal) {
@@ -258,5 +267,18 @@ export class HeaderComponent {
 
   navigateToProfile() {
     this.router.navigate(['/profile']);
+  }
+
+  signUp() {
+    console.log('Signing up user:', this.newUser);
+    this.userService.signUp(this.newUser).subscribe(
+      response => {
+        console.log('User signed up successfully', response);
+        this.closeSignUpModal();
+      },
+      error => {
+        console.error('Error signing up', error);
+      }
+    );
   }
 }

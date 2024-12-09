@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [],
-  template: `
+    selector: 'app-home',
+    standalone: true,
+    imports: [],
+    template: `
 <div class="main-content">
     <header>
         <h1>Welcome to Minesweeper!</h1>
@@ -22,17 +22,17 @@ import { Component } from '@angular/core';
         <div class="difficulty-levels">
             <div class="difficulty">
                 <h3>Beginner</h3>
-                <img src="beginner.png" alt="Beginner Level">
+                <a href="http://localhost:8080/?rows=9&cols=9&mines=10"><img src="beginner.png" alt="Beginner Level"></a>
                 <p>Easy 9x9 grid with 10 mines.</p>
             </div>
             <div class="difficulty">
                 <h3>Intermediate</h3>
-                <img src="intermediate.png" alt="Intermediate Level">
+                <a href="http://localhost:8080/?rows=16&cols=16&mines=40"><img src="intermediate.png" alt="Intermediate Level"></a>
                 <p>Medium 16x16 grid with 40 mines.</p>
             </div>
             <div class="difficulty">
                 <h3>Expert</h3>
-                <img src="expert.png" alt="Expert Level">
+                <a href="http://localhost:8080/?rows=16&cols=30&mines=99"><img src="expert.png" alt="Expert Level"></a>
                 <p>Challenging 30x16 grid with 99 mines.</p>
             </div>
         </div>
@@ -56,7 +56,7 @@ import { Component } from '@angular/core';
     </section>
     </div>
   `,
-  styles: `
+    styles: `
       :host {
       display: flex;
       flex-direction: column;

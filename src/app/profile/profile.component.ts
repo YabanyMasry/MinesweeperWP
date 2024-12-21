@@ -1,10 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+
 
 @Component({
-  selector: 'app-profile',
-  standalone: true,
-  imports: [],
-  template: `
+    selector: 'app-profile',
+    standalone: true,
+    imports: [],
+    template: `
 <div class="main-content">
     <header>
         <h1>User Profile</h1>
@@ -39,15 +42,39 @@ import { Component } from '@angular/core';
                 <label>Games Played:</label>
                 <span>{{ gamesPlayed }}</span>
             </div>
-            <div class="stat-item">
-                <label>Games Won:</label>
-                <span>{{ gamesWon }}</span>
-            </div>
+
         </div>
     </section>
+
+    <section>
+    <h2>Billing Information</h2>
+    <div class="line"></div>
+    <div class="profile-info">
+      <div class="profile-item">
+        <label>Billing Address:</label>
+        <span>{{ billingAddress }}</span>
+      </div>
+      <div class="profile-item">
+        <label>Card Number:</label>
+        <span>{{ cardNumber }}</span>
+      </div>
+      <div class="profile-item">
+        <label>Cardholder Name:</label>
+        <span>{{ cardholderName }}</span>
+      </div>
+      <div class="profile-item">
+        <label>Expiry Date:</label>
+        <span>{{ expiry }}</span>
+      </div>
+      <div class="profile-item">
+        <label>CVV:</label>
+        <span>{{ cvv }}</span>
+      </div>
+    </div>
+  </section>
 </div>
   `,
-  styles: `
+    styles: `
       :host {
       display: flex;
       flex-direction: column;
@@ -91,10 +118,64 @@ import { Component } from '@angular/core';
     }
   `
 })
-export class ProfileComponent {
-  username: string = 'JohnDoe';
-  email: string = 'john.doe@example.com';
-  bestScore: number = 1200;
-  gamesPlayed: number = 50;
-  gamesWon: number = 30;
+export class ProfileComponent implements OnInit {
+    constructor(private http: HttpClient) { }
+    username: string = '';
+    email: string = '';
+    bestScore: number = 0;
+    gamesPlayed: number = 0;
+    userId: string = '';
+    billingAddress: string = '';
+    cardNumber: string = '';
+    cardholderName: string = '';
+    expiry: string = '';
+    cvv: string = '';
+
+    ngOnInit() {
+        this.username = this.getCookie('username');
+        this.email = this.getCookie('email');
+        this.userId = this.getCookie('userId');
+        this.gamesplayed();
+        this.highestscore();
+
+        const paymentInfo = JSON.parse(sessionStorage.getItem('paymentInfo') || '{}');
+        this.billingAddress = paymentInfo.billingAddress || '';
+        this.cardNumber = this.maskCardNumber(paymentInfo.cardNumber || '');
+        this.cardholderName = paymentInfo.cardholderName || '';
+        this.expiry = paymentInfo.expiry || '';
+        this.cvv = this.maskCVV(paymentInfo.cvv || '');
+      }
+
+    gamesplayed() {
+        this.http.get(`http://localhost:8000/api/users/${this.userId}/games-played`).subscribe((data: any) => {
+            this.gamesPlayed = data.gamesPlayed;
+        });
+    }
+
+    highestscore() {
+        this.http.get(`http://localhost:8000/api/users/${this.userId}/highest-score`).subscribe((data: any) => {
+            this.bestScore = data.highestScore.score;
+        });
+    }
+
+
+
+    getCookie(name: string): string {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+        }
+        return '';
+    }
+
+    maskCardNumber(cardNumber: string): string {
+        return cardNumber.replace(/\d(?=\d{4})/g, '*');
+      }
+    
+      maskCVV(cvv: string): string {
+        return cvv.replace(/\d/g, '*');
+      }
 }

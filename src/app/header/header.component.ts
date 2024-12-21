@@ -2,11 +2,15 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from '../user.service';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   providers: [UserService],
   template: `
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -17,15 +21,15 @@ import { FormsModule } from '@angular/forms';
     </a>
     <div class="collapse navbar-collapse justify-content-end">
       <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link btn btn-outline-light mx-1" href="#" (click)="openSignUpModal()">Sign Up</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link btn btn-outline-light mx-1" href="#" (click)="openLoginModal()">Login</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link btn btn-outline-light mx-1" (click)="navigateToProfile()">Profile</a>
-        </li>
+      <li class="nav-item" *ngIf="!userId">
+        <a class="nav-link btn btn-outline-light mx-1" href="#" (click)="openSignUpModal()">Sign Up</a>
+      </li>
+      <li class="nav-item" *ngIf="!userId">
+        <a class="nav-link btn btn-outline-light mx-1" href="#" (click)="openLoginModal()">Login</a>
+      </li>
+      <li class="nav-item" *ngIf="userId">
+        <a class="nav-link btn btn-outline-light mx-1" (click)="navigateToProfile()">Profile</a>
+      </li>
       </ul>
     </div>
   </div>
@@ -40,10 +44,10 @@ import { FormsModule } from '@angular/forms';
         </button>
       </div>
       <div class="modal-body">
-        <form>
+        <form (ngSubmit)="login()">
           <div class="form-group">
-            <label for="username">Username/Email</label>
-            <input type="text" id="username" class="form-control" placeholder="Enter Username/Email">
+            <label for="email">Email</label>
+            <input type="text" id="email" class="form-control" placeholder="Enter Email">
           </div>
           <div class="form-group">
             <label for="password">Password</label>
@@ -57,7 +61,7 @@ import { FormsModule } from '@angular/forms';
             <button type="submit" class="btn btn-primary">Log in</button>
           </div>
         </form>
-      </div>
+        </div>
     </div>
   </div>
 </div>
@@ -74,15 +78,35 @@ import { FormsModule } from '@angular/forms';
         <form (ngSubmit)="signUp()">
           <div class="form-group">
             <label for="newUsername">Username</label>
-            <input type="text" id="newUsername" class="form-control" [(ngModel)]="newUser.username" name="username" placeholder="Enter Username">
+            <input type="text" id="newUsername" class="form-control" [(ngModel)]="newUser.username" name="username" placeholder="Enter Username" required>
           </div>
           <div class="form-group">
             <label for="newEmail">Email</label>
-            <input type="email" id="newEmail" class="form-control" [(ngModel)]="newUser.email" name="email" placeholder="Enter Email">
+            <input type="email" id="newEmail" class="form-control" [(ngModel)]="newUser.email" name="email" placeholder="Enter Email" required>
           </div>
           <div class="form-group">
             <label for="newPassword">Password</label>
-            <input type="password" id="newPassword" class="form-control" [(ngModel)]="newUser.password" name="password" placeholder="Enter Password">
+            <input type="password" id="newPassword" class="form-control" [(ngModel)]="newUser.password" name="password" placeholder="Enter Password" required>
+          </div>
+          <div class="form-group">
+            <label for="cardNumber">Credit Card Number</label>
+            <input type="text" id="cardNumber" class="form-control" [(ngModel)]="newUser.credit_card.number" name="cardNumber" placeholder="Enter Credit Card Number" pattern="\d{16}" required>
+          </div>
+          <div class="form-group">
+            <label for="expirationDate">Expiration Date (MM/YY)</label>
+            <input type="text" id="expirationDate" class="form-control" [(ngModel)]="newUser.credit_card.expiry" name="expirationDate" placeholder="MM/YY" pattern="\d{2}/\d{2}" required>
+          </div>
+          <div class="form-group">
+            <label for="cvv">CVV</label>
+            <input type="text" id="cvv" class="form-control" [(ngModel)]="newUser.credit_card.cvv" name="cvv" placeholder="Enter CVV" pattern="\d{3}" required>
+          </div>
+          <div class="form-group">
+            <label for="cardholderName">Cardholder Name (optional)</label>
+            <input type="text" id="cardholderName" class="form-control" [(ngModel)]="newUser.credit_card.cardholderName" name="cardholderName" placeholder="Enter Cardholder Name">
+          </div>
+          <div class="form-group">
+            <label for="billingAddress">Billing Address (optional)</label>
+            <input type="text" id="billingAddress" class="form-control" [(ngModel)]="newUser.credit_card.billingAddress" name="billingAddress" placeholder="Enter Billing Address">
           </div>
           <div class="modal-footer">
             <button type="button" class="btn" (click)="closeSignUpModal()">Close</button>
@@ -228,14 +252,38 @@ import { FormsModule } from '@angular/forms';
     `
   ]
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
+  userId: string = '';
   newUser = {
     username: '',
     email: '',
-    password: ''
+    password: '',
+    credit_card: {
+      number: '',
+      expiry: '',
+      cvv: '',
+      cardholderName: '',
+      billingAddress: ''
+    }
   };
 
-  constructor(private userService: UserService, private router: Router) {}
+  constructor(private userService: UserService, private router: Router, private http: HttpClient) { }
+
+
+  ngOnInit() {
+    this.userId = this.getCookie('userId');
+  }
+
+  getCookie(name: string): string {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+      if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return '';
+  }
 
   openLoginModal() {
     const modal = document.getElementById('loginModal');
@@ -270,15 +318,65 @@ export class HeaderComponent {
   }
 
   signUp() {
-    console.log('Signing up user:', this.newUser);
-    this.userService.signUp(this.newUser).subscribe(
-      response => {
-        console.log('User signed up successfully', response);
-        this.closeSignUpModal();
-      },
-      error => {
-        console.error('Error signing up', error);
-      }
-    );
+    this.http.post('http://localhost:8000/api/users', this.newUser) // Adjust the URL to your PHP file
+      .subscribe({
+        next: (response: any) => {
+          console.log('User created successfully', response);
+          // Handle success (e.g., close the modal, show a success message, etc.)
+          this.closeSignUpModal();
+  
+          // Securely store payment info in session storage
+          const paymentInfo = {
+            cardNumber: this.newUser.credit_card.number,
+            expiry: this.newUser.credit_card.expiry,
+            cvv: this.newUser.credit_card.cvv,
+            cardholderName: this.newUser.credit_card.cardholderName,
+            billingAddress: this.newUser.credit_card.billingAddress
+          };
+          sessionStorage.setItem('paymentInfo', JSON.stringify(paymentInfo));
+        },
+        error: (error) => {
+          console.error('Signup error', error);
+          if (error.status === 422 && error.error.errors) {
+            // Display validation errors to the user
+            alert('Validation errors: ' + JSON.stringify(error.error.errors));
+          } else {
+            // Handle other errors (e.g., show a generic error message)
+            alert('Signup failed. Please try again later.');
+          }
+        }
+      });
   }
+
+  login() {
+    const email = (document.getElementById('email') as HTMLInputElement).value;
+    const password = (document.getElementById('password') as HTMLInputElement).value;
+
+    console.log('Logging in with ', email);
+    console.log('Logging in with ', password);
+
+    const payload = { email, password };
+
+    this.http.post('http://localhost:8000/api/users/login', payload)
+      .subscribe({
+        next: (response: any) => {
+          console.log('Login successful', response);
+          document.cookie = `userId=${response.user.id}; path=/`;
+          document.cookie = `username=${response.user.username}; path=/`;
+          document.cookie = `email=${response.user.email}; path=/`;
+
+          this.closeLoginModal();
+          this.navigateToProfile();
+        },
+        error: (error) => {
+          console.error('Login error', error);
+          if (error.status === 422) {
+            alert('Login failed. Please check your credentials and try again.');
+          } else {
+            alert('An unexpected error occurred. Please try again later.');
+          }
+        }
+      });
+  }
+
 }
